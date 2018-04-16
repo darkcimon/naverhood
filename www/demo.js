@@ -6,7 +6,7 @@
 // Here is how to define your module
 // has dependent on mobile-angular-ui
 //
-var app = angular.module('MobileAngularUiExamples', [
+var app = angular.module('nhApp', [
   'ngRoute',
   'mobile-angular-ui',
 
@@ -30,65 +30,93 @@ app.run(function($transform) {
 app.config(function($routeProvider) {
   $routeProvider.when('/', {templateUrl: 'home.html',
     controller:function($scope) {
-        $scope.locations = [
-            ['hello world', 41.926979, 12.517385, 3],
-            ['hi soonwoo', 41.914873, 12.506486, 2],
-            ['DESCRIPTION', 61.918574, 12.507201, 1]
-        ];
-        $scope.showMap = function(){
-          if (navigator.geolocation) {
-              navigator.geolocation.getCurrentPosition(function(position){
-                $scope.locations[1][1] = position.coords.latitude;
-                $scope.locations[1][2] = position.coords.longitude;
-                $scope.locations[0][1] = position.coords.latitude+1;
-                $scope.locations[0][2] = position.coords.longitude+1;
-                $scope.locations[2][1] = position.coords.latitude-1;
-                $scope.locations[2][2] = position.coords.longitude-1;
-                console.log("my location",$scope.locations[1]);
-                $scope.loadMap();
-            }, function(error){console.log(error)});
-          }
+        function randLatLng(coords) {
+            return new google.maps.LatLng((Math.random() * 10)+ coords.latitude, (Math.random() *10)+ coords.longitude);
+        }
 
-        };
-        $scope.loadMap= function(){
-          var locations = $scope.locations;
-          window.map = new google.maps.Map(document.getElementById('map_canvas'), {
-            mapTypeId: google.maps.MapTypeId.ROADMAP,
-            zoom:13
-          });
+        function setCurrentPosMap(position){
+            var latitude = position.coords.latitude;
+            var longitude = position.coords.longitude;
+            var mapOptions = {
+                zoom: 5,
+                center: new google.maps.LatLng(0, 0)
+            };
 
-            var infowindow = new google.maps.InfoWindow();
+            mapOptions.center = new google.maps.LatLng(latitude, longitude)
 
-            var bounds = new google.maps.LatLngBounds();
-            var marker = null;
-            for (var i = 0; i < locations.length; i++) {
-                marker = new google.maps.Marker({
-                    position: new google.maps.LatLng(locations[i][1], locations[i][2]),
-                    map: map
-                });
+            var map = new google.maps.Map(document.getElementById('map_canvas'), mapOptions);
 
-                bounds.extend(marker.position);
+            var css = ['border-color:white;background:white;color:black;',
+                'border-color:red;background:red;color:white;',
+                'border-color:blue;background:blue;color:white;',
+                'border-color:yellow;background:yellow;color:black;',
+                'border-color:black;background:black;color:white;',
+                'border-color:orange;background:orange;color:black;', ]
+            for (var i = 0; i < 10; ++i) {
+                new HtmlMarker(map,
+                    randLatLng(position.coords),
+                    Math.ceil(Math.random() * 10),
+                    css[0]
+                );
+                css.push(css.shift())
+            }
+        }
+        function initialize() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(setCurrentPosMap
+                , function(error){console.log(error)});
+            }
+        }
 
-                infowindow.setContent(locations[i][0]);
-                infowindow.open(map, marker);
+        HtmlMarker.prototype = new google.maps.OverlayView();
 
-                google.maps.event.addListener(marker, 'click', (function (marker, i) {
-                    return function () {
-                        infowindow.setContent(locations[i][0]);
-                        infowindow.open(map, marker);
-                    }
-                })(marker, i));
+        function HtmlMarker(map, position, content, cssText) {
+            this.setValues({
+                position: position,
+                container: null,
+                content: content,
+                map: map,
+                cssText: cssText
+            });
+
+            this.onAdd = function () {
+                var that = this,
+                    container = document.createElement('div'),
+                    content = this.get('content'),
+                    cssText = this.get('cssText') || 'border-color:#fff;background:#fff;color:#000;';
+                container.className = 'HtmlMarker';
+                container.style.cssText = cssText;
+
+                google.maps.event.addDomListener(container, 'click',
+
+                    function () {
+                        google.maps.event.trigger(that, 'click');
+                    });
+                if (typeof content.nodeName !== 'undefined') {
+                    container.appendChild(content);
+                } else {
+                    container.innerHTML = content;
+                }
+
+                container.style.position = 'absolute';
+                this.set('container', container)
+                this.getPanes().floatPane.appendChild(container);
             }
 
-            map.fitBounds(bounds);
+            this.draw = function () {
+                var pos = this.getProjection().fromLatLngToDivPixel(this.get('position')),
+                    container = this.get('container');
+                container.style.left = pos.x - (container.offsetWidth / 2) + 'px';
+                container.style.top = pos.y - (container.offsetHeight) + 'px';
+            }
 
-            var listener = google.maps.event.addListener(map, "idle", function () {
-                map.setZoom(3);
-                google.maps.event.removeListener(listener);
-            });
+            this.onRemove = function () {
+                this.get('container').parentNode.removeChild(this.get('container'));
+                this.set('container', null)
+            }
         }
-        $scope.showMap();
-    }
+        google.maps.event.addDomListener(window, 'load', initialize);
+      }
       ,reloadOnSearch: false
   });
   $routeProvider.when('/scroll', {templateUrl: 'scroll.html', reloadOnSearch: false});
@@ -327,7 +355,6 @@ app.controller('MainController', function($rootScope, $scope) {
 
   document.addEventListener("deviceready", $scope.onDeviceReady, false);
 
-
   $scope.onDeviceReady = function() {
     var deviceInfo = 'Device Model: '    + device.model    + '<br />' +
           'Device Cordova: '  + device.cordova  + '<br />' +
@@ -371,37 +398,6 @@ app.controller('MainController', function($rootScope, $scope) {
   };
 
   //
-  // Right Sidebar
-  //
-  $scope.chatUsers = [
-    {name: 'Carlos  Flowers', online: true},
-    {name: 'Byron Taylor', online: true},
-    {name: 'Jana  Terry', online: true},
-    {name: 'Darryl  Stone', online: true},
-    {name: 'Fannie  Carlson', online: true},
-    {name: 'Holly Nguyen', online: true},
-    {name: 'Bill  Chavez', online: true},
-    {name: 'Veronica  Maxwell', online: true},
-    {name: 'Jessica Webster', online: true},
-    {name: 'Jackie  Barton', online: true},
-    {name: 'Crystal Drake', online: false},
-    {name: 'Milton  Dean', online: false},
-    {name: 'Joann Johnston', online: false},
-    {name: 'Cora  Vaughn', online: false},
-    {name: 'Nina  Briggs', online: false},
-    {name: 'Casey Turner', online: false},
-    {name: 'Jimmie  Wilson', online: false},
-    {name: 'Nathaniel Steele', online: false},
-    {name: 'Aubrey  Cole', online: false},
-    {name: 'Donnie  Summers', online: false},
-    {name: 'Kate  Myers', online: false},
-    {name: 'Priscilla Hawkins', online: false},
-    {name: 'Joe Barker', online: false},
-    {name: 'Lee Norman', online: false},
-    {name: 'Ebony Rice', online: false}
-  ];
-
-  //
   // 'Forms' screen
   //
   $scope.rememberMe = true;
@@ -411,19 +407,4 @@ app.controller('MainController', function($rootScope, $scope) {
     alert('You submitted the login form');
   };
 
-  //
-  // 'Drag' screen
-  //
-  $scope.notices = [];
-
-  for (var j = 0; j < 10; j++) {
-    $scope.notices.push({icon: 'envelope', message: 'Notice ' + (j + 1)});
-  }
-
-  $scope.deleteNotice = function(notice) {
-    var index = $scope.notices.indexOf(notice);
-    if (index > -1) {
-      $scope.notices.splice(index, 1);
-    }
-  };
 });
