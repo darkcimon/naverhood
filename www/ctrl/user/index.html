@@ -1,0 +1,52 @@
+<div ui-content-for="title">
+    <span ng-if="status==='Login'">로그인</span>
+    <span ng-if="status!=='Login'">회원가입</span>
+</div>
+
+<div class="scrollable">
+    <div class="scrollable-content section">
+
+        <form role="form">
+            <fieldset>
+                <legend ng-model="title"></legend>
+                <div class="form-group has-success has-feedback">
+                    <label>Email</label>
+                    <input type="email"
+                           ng-model="email"
+                           class="form-control"
+                           placeholder="Enter email">
+                </div>
+
+                <div class="form-group" ng-show="status!=='Login'">
+                    <label>Name</label>
+                    <input type="text"
+                           ng-model="name"
+                           class="form-control"
+                           placeholder="Name">
+                </div>
+
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password"
+                           ng-model="password"
+                           class="form-control"
+                           placeholder="Password">
+                </div>
+
+                <div class="form-group" ng-show="status==='Login'">
+                    <label>Remember Me</label>
+                    <ui-switch
+                            ng-model="rememberMe"></ui-switch>
+                </div>
+            </fieldset>
+            <hr>
+            <input type="text" ng-model="message"/>
+            <button class="btn btn-primary btn-block" ng-click="login()">
+                Login
+            </button>
+            <button class="btn btn-primary btn-block" ng-click="create()">
+                Sign Up
+            </button>
+        </form>
+    </div>
+</div>

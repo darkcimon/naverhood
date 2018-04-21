@@ -1,0 +1,38 @@
+<div ui-content-for="title">
+    <span ng-if="type==='work'">직업</span>
+    <span ng-if="type==='hobby'">취미</span>
+    <span ng-if="type==='town'">동네</span>
+</div>
+
+<div class="scrollable" ui-shared-state="searchBar">
+    <input
+        ng-if="Ui.active('searchBar')"
+        type="search"
+        class="form-control scrollable-header"
+        placeholder="Search.." />
+
+    <div>
+        <div class="scrollable-content section">
+            <button class="btn btn-primary btn-block" ng-click="goCreateBoard()">
+                등록하기
+            </button>
+            <div ui-content-for="navbarAction">
+                <a class="btn" ng-click="goCreateBoard()">등록하기</a>
+            </div>
+        </div>
+        <div class="scrollable-content">
+            <div class="list-group">
+                <a ng-repeat="item in boardList" href="" class="list-group-item" ng-click="goDetail(item._id)">
+                    {{ item.title }} <i class="fa fa-chevron-right pull-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    <a class="btn btn-block btn-lg btn-primary scrollable-footer" ui-toggle="searchBar">
+        <i class="fa fa-search"></i>
+        <span ui-hide="searchBar">Show</span>
+        <span ui-show="searchBar">Hide</span>
+        Search Bar
+    </a>
+
+</div>

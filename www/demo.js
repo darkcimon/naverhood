@@ -9,7 +9,6 @@
 var app = angular.module('nhApp', [
   'ngRoute',
   'mobile-angular-ui',
-
   // touch/drag feature: this is from 'mobile-angular-ui.gestures.js'.
   // This is intended to provide a flexible, integrated and and
   // easy to use alternative to other 3rd party libs like hammer.js, with the
@@ -18,6 +17,7 @@ var app = angular.module('nhApp', [
   'mobile-angular-ui.gestures'
 ]);
 
+window.app = app;
 app.run(function($transform) {
   window.$transform = $transform;
 });
@@ -28,97 +28,11 @@ app.run(function($transform) {
 // in order to avoid unwanted routing.
 //
 app.config(function($routeProvider) {
-  $routeProvider.when('/', {templateUrl: 'home.html',
-    controller:function($scope) {
-        function randLatLng(coords) {
-            return new google.maps.LatLng((Math.random() * 10)+ coords.latitude, (Math.random() *10)+ coords.longitude);
-        }
-
-        function setCurrentPosMap(position){
-            var latitude = position.coords.latitude;
-            var longitude = position.coords.longitude;
-            var mapOptions = {
-                zoom: 5,
-                center: new google.maps.LatLng(0, 0)
-            };
-
-            mapOptions.center = new google.maps.LatLng(latitude, longitude)
-
-            var map = new google.maps.Map(document.getElementById('map_canvas'), mapOptions);
-
-            var css = ['border-color:white;background:white;color:black;',
-                'border-color:red;background:red;color:white;',
-                'border-color:blue;background:blue;color:white;',
-                'border-color:yellow;background:yellow;color:black;',
-                'border-color:black;background:black;color:white;',
-                'border-color:orange;background:orange;color:black;', ]
-            for (var i = 0; i < 10; ++i) {
-                new HtmlMarker(map,
-                    randLatLng(position.coords),
-                    Math.ceil(Math.random() * 10),
-                    css[0]
-                );
-                css.push(css.shift())
-            }
-        }
-        function initialize() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(setCurrentPosMap
-                , function(error){console.log(error)});
-            }
-        }
-
-        HtmlMarker.prototype = new google.maps.OverlayView();
-
-        function HtmlMarker(map, position, content, cssText) {
-            this.setValues({
-                position: position,
-                container: null,
-                content: content,
-                map: map,
-                cssText: cssText
-            });
-
-            this.onAdd = function () {
-                var that = this,
-                    container = document.createElement('div'),
-                    content = this.get('content'),
-                    cssText = this.get('cssText') || 'border-color:#fff;background:#fff;color:#000;';
-                container.className = 'HtmlMarker';
-                container.style.cssText = cssText;
-
-                google.maps.event.addDomListener(container, 'click',
-
-                    function () {
-                        google.maps.event.trigger(that, 'click');
-                    });
-                if (typeof content.nodeName !== 'undefined') {
-                    container.appendChild(content);
-                } else {
-                    container.innerHTML = content;
-                }
-
-                container.style.position = 'absolute';
-                this.set('container', container)
-                this.getPanes().floatPane.appendChild(container);
-            }
-
-            this.draw = function () {
-                var pos = this.getProjection().fromLatLngToDivPixel(this.get('position')),
-                    container = this.get('container');
-                container.style.left = pos.x - (container.offsetWidth / 2) + 'px';
-                container.style.top = pos.y - (container.offsetHeight) + 'px';
-            }
-
-            this.onRemove = function () {
-                this.get('container').parentNode.removeChild(this.get('container'));
-                this.set('container', null)
-            }
-        }
-        google.maps.event.addDomListener(window, 'load', initialize);
-      }
-      ,reloadOnSearch: false
-  });
+  $routeProvider.when('/', {templateUrl: 'ctrl/user/index.html', controller:'UserController',reloadOnSearch: false});
+  $routeProvider.when('/home', {templateUrl: 'ctrl/home/index.html', controller:'HomeController',reloadOnSearch: false});
+  $routeProvider.when('/board/:type', {templateUrl: 'ctrl/board/index.html', controller:'BoardController',reloadOnSearch: false});
+  $routeProvider.when('/board/detail/:type/:boardId', {templateUrl: 'ctrl/board/detail.html', controller:'BoardDtlController',reloadOnSearch: false});
+  $routeProvider.when('/board/regist/:type', {templateUrl: 'ctrl/board/detail.html', controller:'BoardDtlController',reloadOnSearch: false});
   $routeProvider.when('/scroll', {templateUrl: 'scroll.html', reloadOnSearch: false});
   $routeProvider.when('/toggle', {templateUrl: 'toggle.html', reloadOnSearch: false});
   $routeProvider.when('/tabs', {templateUrl: 'tabs.html', reloadOnSearch: false});
@@ -395,16 +309,6 @@ app.controller('MainController', function($rootScope, $scope) {
 
   $scope.bottomReached = function() {
     alert('Congrats you scrolled to the end of the list!');
-  };
-
-  //
-  // 'Forms' screen
-  //
-  $scope.rememberMe = true;
-  $scope.email = 'me@example.com';
-
-  $scope.login = function() {
-    alert('You submitted the login form');
   };
 
 });

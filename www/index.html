@@ -18,10 +18,15 @@
     <script src="dist/js/mobile-angular-ui.js"></script>
     <!-- Required to use $touch, $swipe, $drag and $translate services -->
     <script src="dist/js/mobile-angular-ui.gestures.js"></script>
-    <!-- google maps script is loaded last as to not block rendering -->
-    <script src="dist/js/google.map.js??libraries=places&key=AIzaSyC6qc8nqiKMEVGmR6--xm-mySs42LUK5YY"></script>
+    <!--<script src="dist/js/google.map.js?libraries=places&key=AIzaSyC6qc8nqiKMEVGmR6&#45;&#45;xm-mySs42LUK5YY"></script>-->
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&key=AIzaSyC6qc8nqiKMEVGmR6&#45;&#45;xm-mySs42LUK5YY"></script>
     <script src="demo.js"></script>
-    <script src="cordova.js"></script>
+    <script src="ctrl/user/controller.js"></script>
+    <script src="ctrl/home/controller.js"></script>
+    <script src="ctrl/board/controller.js"></script>
+    <!--<script src="user.js"></script>-->
+    <!--<script src="home.js"></script>-->
+    <!--<script src="cordova.js"></script>-->
   </head>
 
   <body
@@ -69,6 +74,8 @@
 
     </div><!-- ~ .app -->
 
-    <div ui-yield-to="modals"></div>
+    <div ui-yield-to="modals">
+
+    </div>
   </body>
 </html>
