@@ -1,4 +1,5 @@
-app.controller('HomeController', ['$scope', '$http', '$location', function ($scope, $http, $location) {
+app.controller('HomeController', ['$scope', '$http', '$location','API_SERVER',
+	function ($scope, $http, $location,API_SERVER) {
 	function randLatLng(latitude,longitude) {
 		return new google.maps.LatLng(latitude, longitude);
 	}
@@ -21,7 +22,7 @@ app.controller('HomeController', ['$scope', '$http', '$location', function ($sco
 			'border-color:yellow;background:yellow;color:black;',
 			'border-color:black;background:black;color:white;',
 			'border-color:orange;background:orange;color:black;'];
-		$http.get("http://localhost:8080/api/board")
+		$http.get(API_SERVER+"/board")
 		.success(function(data, status) {
 			console.log(data);
 			if(data && data.length>0){

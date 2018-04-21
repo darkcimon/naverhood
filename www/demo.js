@@ -22,6 +22,8 @@ app.run(function($transform) {
   window.$transform = $transform;
 });
 
+app.value('API_SERVER', 'http://localhost:8080/api');
+
 //
 // You can configure ngRoute as always, but to take advantage of SharedState location
 // feature (i.e. close sidebar on backbutton) you should setup 'reloadOnSearch: false'

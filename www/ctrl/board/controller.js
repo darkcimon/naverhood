@@ -1,4 +1,5 @@
-app.controller('BoardController', ['$scope', '$http', '$location','$routeParams','$rootScope', function ($scope, $http, $location,$routeParams,$rootScope) {
+app.controller('BoardController', ['$scope', '$http', '$location','$routeParams','$rootScope','API_SERVER',
+	function ($scope, $http, $location,$routeParams,$rootScope,API_SERVER) {
 	// if(!$rootScope.user){
 	// 	alert("권한이 없습니다. 로그인 해주세요.");
 	// 	$location.path('/');
@@ -8,7 +9,7 @@ app.controller('BoardController', ['$scope', '$http', '$location','$routeParams'
 	$scope.getBoardList = function(){
 		// $scope.param = {type:$scope.type,title:$scope.title,
 		// 	content:$scope.content,latitude:$scope.latitude,content:$scope.content};
-		$http.get("http://localhost:8080/api/board/"+$scope.type)
+		$http.get(API_SERVER+"/board/"+$scope.type)
 		.success(function(data, status) {
 			$scope.boardList = data;
 		});
@@ -36,7 +37,7 @@ app.controller('BoardDtlController', ['$scope', '$http', '$location','$routePara
 	$scope.showDetail = function(boardId){
 		// $scope.param = {type:$scope.type,title:$scope.title,
 		// 	content:$scope.content,latitude:$scope.latitude,content:$scope.content};
-		$http.get("http://localhost:8080/api/board/"+$routeParams.type+"/"+boardId)
+		$http.get(API_SERVER+"/board/"+$routeParams.type+"/"+boardId)
 		.success(function(data, status) {
 			$scope.params = data[0];
 			$scope.status = "update";
@@ -57,7 +58,7 @@ app.controller('BoardDtlController', ['$scope', '$http', '$location','$routePara
 	};
 
 	$scope.update = function(){
-		$http.put("http://localhost:8080/api/board/"+$routeParams.type+"/"+boardId, $scope.params)
+		$http.put(API_SERVER+"/board/"+$routeParams.type+"/"+boardId, $scope.params)
 		.success(function(data, status) {
 			$scope.message = data;
 			$location.path('/board/'+$routeParams.type);
@@ -68,7 +69,7 @@ app.controller('BoardDtlController', ['$scope', '$http', '$location','$routePara
 		$scope.params.latitude = position.coords.latitude;
 		$scope.params.longitude = position.coords.longitude;
 
-		$http.post("http://localhost:8080/api/board", $scope.params)
+		$http.post(API_SERVER+"/board", $scope.params)
 		.success(function(data, status) {
 			$scope.message = data;
 			$location.path('/home');

@@ -1,5 +1,5 @@
-app.controller('UserController', ['$scope', '$http', '$location','$rootScope',
-    function($scope, $http, $location,$rootScope) {
+app.controller('UserController', ['$scope', '$http', '$location','$rootScope','API_SERVER',
+    function($scope, $http, $location,$rootScope,API_SERVER) {
     $scope.rememberMe = localStorage["rememberMe"];
     $scope.email = ($scope.rememberMe) ? localStorage["email"] : "";
     $scope.status = "Login";
@@ -12,7 +12,7 @@ app.controller('UserController', ['$scope', '$http', '$location','$rootScope',
             localStorage["rememberMe"] = true;
             localStorage["email"] = $scope.email;
         }
-        $http.get("http://localhost:8080/api/users?"+$scope.email)
+        $http.get(API_SERVER+"/users?"+$scope.email)
         .success(function(data, status) {
             console.log("user",data);
             if(data && data.length>0){
@@ -37,12 +37,12 @@ app.controller('UserController', ['$scope', '$http', '$location','$rootScope',
             $scope.status = "SignUp";
             return;
         }
-        $http.get("http://localhost:8080/api/users?"+$scope.email)
+        $http.get(API_SERVER+"/users?"+$scope.email)
         .success(function(data, status) {
             if(data && data.length>0){
                 alert("해당 이메일로 가입된 내역이 있습니다.");
             }else{
-                $http.post("http://localhost:8080/api/users", {email:$scope.email,name:$scope.name,password:$scope.password})
+                $http.post(API_SERVER+"/users", {email:$scope.email,name:$scope.name,password:$scope.password})
                 .success(function(data, status) {
 	                localStorage["userId"] = data[0]._id;
                     $location.path('/home');
